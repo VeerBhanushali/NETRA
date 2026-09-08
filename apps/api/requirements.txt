@@ -1,0 +1,12 @@
+# NETRA API — pinned to majors that are known to work together.
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.32,<1.0
+pydantic>=2.9,<3.0
+python-multipart>=0.0.12
+
+# Optional: only needed when NETRA_AI_ENABLED=true and provider is gemini.
+# google-genai>=0.3.0
+
+# Dev / test
+pytest>=8.0
+httpx>=0.27

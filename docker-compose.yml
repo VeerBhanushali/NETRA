@@ -1,0 +1,52 @@
+# NETRA — full stack, one command:
+#
+#     docker compose up --build
+#     docker compose exec api python scripts/seed_demo.py --reset
+#
+# Then open http://localhost:3000
+#
+# This is the "deploy anywhere" unit. The same two images run unchanged on
+# a laptop, a VM, Render, Railway, Fly.io or Cloud Run — only the volume
+# and the environment change.
+#
+# The edge worker is intentionally NOT in here. It needs GPU access
+# (DirectML on Windows) which a Linux container cannot reach on this
+# hardware, and it belongs next to the cameras rather than next to the
+# database. Run it on the host with `python -m edge`.
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      # Change this before exposing the API to anything but localhost.
+      NETRA_INGEST_TOKEN: ${NETRA_INGEST_TOKEN:-dev-ingest-token}
+      NETRA_CORS: http://localhost:3000
+      NETRA_AUTO_ACCEPT: ${NETRA_AUTO_ACCEPT:-0.90}
+      NETRA_AI_ENABLED: ${NETRA_AI_ENABLED:-false}
+      NETRA_AI_PROVIDER: ${NETRA_AI_PROVIDER:-stub}
+      NETRA_AI_API_KEY: ${NETRA_AI_API_KEY:-}
+    volumes:
+      # Persistent database. Without this, every redeploy wipes the city's
+      # sighting history.
+      - netra-data:/data
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    environment:
+      # Server-side rewrite target; never exposed to the browser.
+      NETRA_API_URL: http://api:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  netra-data:

@@ -1,0 +1,390 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =====================================================================
+   NETRA design tokens.
+
+   Five rules to check any screen against:
+     1. Colour carries meaning. Never decoration.
+     2. Hierarchy comes from type size, weight and spacing.
+     3. Panels are objects on a surface — hairline + contact shadow.
+     4. Every number a person compares is monospaced, tabular, right-aligned.
+     5. Motion confirms causality. It never entertains.
+
+   Permanently banned: gradients, glassmorphism, neon on black,
+   purple-to-pink, oversized rounded cards, emoji icons, dark "tactical"
+   themes, more than one accent hue.
+   ===================================================================== */
+
+:root {
+  /* --- surfaces: cool-tinted canvas, white panels floating on it.
+         Cool (blue-leaning) not warm: warm greys read as paper and
+         editorial; NETRA is an instrument reading a machine's output.
+         The canvas/panel step is 1.10:1 — below conscious notice, above
+         perceptual threshold. Panels stay pure white so evidence frames
+         and annotated JPEGs sit on neutral ground. --- */
+  --canvas:         #F2F4F7;
+  --surface:        #FFFFFF;
+  --surface-subtle: #F7F9FB;
+  --surface-sunken: #EBEEF3;
+  --surface-inset:  #E4E8EF;
+  /* The one legitimate translucency: a chip over live video. */
+  --scrim: rgb(255 255 255 / 0.92);
+
+  /* --- borders: three steps. The third exists because a hairline tuned
+         for white panels disappears against the tinted canvas. --- */
+  --border:        #E3E7EE;
+  --border-strong: #CBD2DD;
+  --border-loud:   #A7B0BF;
+
+  /* --- ink ramp, cool-cast. Contrast on #FFF / on --canvas. --- */
+  --ink:        #0B0F17;  /* 18.6 / 16.9 */
+  --ink-body:   #232A35;  /* 14.4 / 13.1 */
+  --ink-muted:  #4A5464;  /*  7.6 /  6.9 */
+  --ink-subtle: #5E6878;  /*  5.3 /  4.8 — AA on BOTH backgrounds */
+  --ink-faint:  #8A93A1;  /*  3.2 — NON-TEXT ONLY: icons, gridlines */
+
+  /* --- accent: institutional blue. Deeper and less saturated than a web
+         royal blue — it reads as signage, not as a hyperlink. --- */
+  --accent:             #17509C;  /* 7.9:1 on white */
+  --accent-hover:       #103F7D;
+  --accent-active:      #0C3363;
+  --accent-wash:        #EDF3FC;
+  --accent-wash-strong: #DCE8F8;
+  --accent-border:      #B4CDEA;
+
+  /* --- categorical palette. One hue, one meaning, used nowhere else.
+         Shared chroma and descending lightness, so they still rank
+         correctly in greyscale and for colour-vision deficiency. --- */
+  --c-traffic:  #0C6D9E;  /* VOLUME: sightings, throughput      */
+  --c-vehicles: #6D3BC4;  /* IDENTITY: distinct plates          */
+  --c-cameras:  #0B6E64;  /* INFRASTRUCTURE: device health      */
+  --c-review:   #9A5B06;  /* OWED TO A HUMAN: pending judgement */
+  --c-accuracy: #14713A;  /* MODEL QUALITY: confidence          */
+  --c-alerts:   #B01818;  /* OPEN ALERTS: reserved absolutely   */
+
+  --c-traffic-wash:  #EAF4FA;
+  --c-vehicles-wash: #F2EDFC;
+  --c-cameras-wash:  #E7F5F2;
+  --c-review-wash:   #FBF2E2;
+  --c-accuracy-wash: #E9F5EC;
+  --c-alerts-wash:   #FBECEC;
+
+  /* --- severity: lightness alone ranks them, and every use is paired
+         with a text label — colour is never the sole signal. All >= 5.5:1
+         so they hold on a wall display. --- */
+  --critical:      #A81616;  /* 7.6 */
+  --critical-wash: #FBECEC;
+  --high:          #B03D0A;  /* 6.3 */
+  --high-wash:     #FCF0E8;
+  --medium:        #8A5406;  /* 5.6 */
+  --medium-wash:   #FBF3E0;
+  --low:           #17509C;  /* 7.9 */
+  --low-wash:      #EDF3FC;
+  --info:          #4A5464;  /* 7.6 */
+  --info-wash:     #F1F3F6;
+  --ok:            #14713A;  /* 5.6 */
+  --ok-wash:       #E9F5EC;
+
+  /* --- type. System stack: no network dependency, so it cannot fail at
+         a venue with no wifi. Inter first if locally installed. The
+         feature settings disambiguate l/I and 0/O — which matters when
+         the primary key is an alphanumeric plate. --- */
+  --font-sans: Inter, ui-sans-serif, system-ui, "Segoe UI Variable Text",
+               "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", "SF Mono",
+               Menlo, Consolas, monospace;
+
+  /* --- layout --- */
+  --sidebar-w: 216px;
+  --header-h:  56px;
+  --row-h:     40px;
+  --radius:    3px;   /* 2px reads as a rendering artefact at some DPRs */
+  --radius-sm: 2px;
+  --strip-w:   3px;   /* the meaning strip: active nav, selected row, severity */
+
+  /* --- elevation. Three steps, never more. Shadow colour is the
+         blue-black: grey shadows on a cool canvas look dirty. --- */
+  --shadow-1: 0 1px 1px rgb(16 24 40 / 0.04),
+              0 1px 3px -1px rgb(16 24 40 / 0.06);
+  --shadow-2: 0 2px 4px -1px rgb(16 24 40 / 0.05),
+              0 6px 16px -4px rgb(16 24 40 / 0.08);
+  --shadow-overlay: 0 12px 32px -8px rgb(16 24 40 / 0.18),
+                    0 4px 10px -4px rgb(16 24 40 / 0.08);
+  --shadow-sticky: 0 1px 0 0 var(--border-strong);
+  --ring-focus: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+
+  /* --- motion. Four durations, two easings. Nothing outside this set.
+         No spring, no overshoot: overshoot implies physical mass, and a
+         row of ANPR data has none. --- */
+  --dur-instant: 80ms;
+  --dur-fast:   140ms;
+  --dur-base:   200ms;
+  --dur-slow:  1100ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-std: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; margin: 0; padding: 0; }
+
+body {
+  background: var(--canvas);
+  color: var(--ink-body);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  font-feature-settings: "cv05", "ss01", "tnum";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Density: the same console runs on a laptop and on a wall display. */
+html[data-density="compact"] { --row-h: 32px; --strip-w: 2px; font-size: 13px; }
+html[data-density="wall"]    { --row-h: 48px; --strip-w: 4px; font-size: 16px; }
+
+@layer components {
+  /* ---------- type ---------- */
+  .label-micro {
+    font-size: 10px; font-weight: 650; letter-spacing: 0.085em;
+    text-transform: uppercase; color: var(--ink-subtle); line-height: 1.1;
+  }
+
+  .mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums slashed-zero;
+    letter-spacing: 0.01em;
+  }
+
+  /* Numbers a person compares are right-aligned and tabular, so a column
+     can be scanned by its ragged edge without being read. */
+  .num {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums slashed-zero;
+  }
+
+  /* The plate is the primary key of the whole system. A wash chip on
+     hover rather than an underline: it is an entity, not a link.
+     slashed-zero matters — 0 vs O is a real transcription ambiguity. */
+  .plate {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums slashed-zero;
+    font-weight: 600; letter-spacing: 0.055em; color: var(--ink);
+    padding: 1px 4px; margin-left: -4px; border-radius: var(--radius-sm);
+    background: transparent; text-decoration: none;
+    transition: background var(--dur-instant) var(--ease-std),
+                color var(--dur-instant) var(--ease-std);
+  }
+  .plate:hover { background: var(--accent-wash); color: var(--accent-active); }
+  .plate:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+
+  /* ---------- surfaces ---------- */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
+  }
+
+  /* ---------- data table ---------- */
+  .table-head {
+    position: sticky; top: 0; z-index: 1;
+    background: var(--surface-subtle);
+    box-shadow: var(--shadow-sticky);
+  }
+  .table-head th {
+    font-size: 10px; font-weight: 650; letter-spacing: 0.085em;
+    text-transform: uppercase; color: var(--ink-subtle);
+    text-align: left; padding: 8px 12px; white-space: nowrap;
+  }
+  .table-head th.num { text-align: right; }
+
+  .table-row {
+    border-bottom: 1px solid var(--border);
+    height: var(--row-h);
+    transition: background var(--dur-instant) var(--ease-std),
+                box-shadow  var(--dur-instant) var(--ease-std);
+  }
+  .table-row td { padding: 0 12px; }
+  .table-row:hover {
+    background: var(--surface-subtle);
+    box-shadow: inset var(--strip-w) 0 0 0 var(--border-loud);
+  }
+  /* Keyboard focus is louder than hover: the pointer already tells you
+     where it is, the keyboard does not. */
+  .table-row[data-focused="true"] {
+    background: var(--surface-subtle);
+    box-shadow: inset var(--strip-w) 0 0 0 var(--accent);
+    outline: 2px solid var(--accent); outline-offset: -2px;
+  }
+  .table-row[data-selected="true"] {
+    background: var(--accent-wash);
+    box-shadow: inset var(--strip-w) 0 0 0 var(--accent);
+  }
+  .table-row[data-urgent="true"] {
+    background: var(--critical-wash);
+    box-shadow: inset var(--strip-w) 0 0 0 var(--critical);
+  }
+
+  /* ---------- controls ---------- */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 32px; padding: 0 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-strong);
+    background: var(--surface); color: var(--ink-body);
+    font-size: 13px; font-weight: 500; letter-spacing: -0.003em;
+    cursor: pointer; box-shadow: var(--shadow-1);
+    transition: background var(--dur-instant) var(--ease-std),
+                border-color var(--dur-instant) var(--ease-std),
+                box-shadow var(--dur-instant) var(--ease-std);
+  }
+  .btn:hover  { background: var(--surface-subtle); border-color: var(--border-loud); }
+  .btn:active { background: var(--surface-sunken); box-shadow: none; }
+  .btn:focus-visible { outline: none; box-shadow: var(--ring-focus); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+  .btn-primary {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
+  .btn-primary:hover  { background: var(--accent-hover);  border-color: var(--accent-hover); }
+  .btn-primary:active { background: var(--accent-active); border-color: var(--accent-active); }
+
+  .btn-ghost { border-color: transparent; background: transparent; box-shadow: none; }
+  .btn-ghost:hover  { background: var(--surface-sunken); border-color: transparent; }
+  .btn-ghost:active { background: var(--surface-inset); }
+
+  .input {
+    height: 34px; width: 100%; padding: 0 10px;
+    border: 1px solid var(--border-strong); border-radius: var(--radius);
+    background: var(--surface); color: var(--ink); font-size: 14px;
+    transition: border-color var(--dur-instant) var(--ease-std),
+                box-shadow var(--dur-instant) var(--ease-std);
+  }
+  .input::placeholder { color: var(--ink-subtle); }
+  .input:hover { border-color: var(--border-loud); }
+  .input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-wash);
+  }
+
+  /* A visible keyboard affordance. This console is keyboard-first; the
+     interface should admit it. */
+  .kbd {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 18px; padding: 0 5px;
+    font-family: var(--font-mono); font-size: 10px; line-height: 1;
+    color: var(--ink-muted); background: var(--surface-sunken);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+    box-shadow: inset 0 -1px 0 0 var(--border-strong);
+  }
+
+  /* Severity pill. Always carries its text label. */
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    height: 20px; padding: 0 7px;
+    border-radius: var(--radius-sm);
+    border: 1px solid currentColor;
+    font-size: 10px; font-weight: 650; letter-spacing: 0.06em;
+    text-transform: uppercase; white-space: nowrap;
+  }
+
+  /* ---------- tiles ---------- */
+  .tile {
+    position: relative; overflow: hidden;
+    transition: border-color var(--dur-fast) var(--ease-std),
+                box-shadow  var(--dur-fast) var(--ease-std),
+                transform   var(--dur-fast) var(--ease-std);
+  }
+  .tile::before {
+    content: ""; position: absolute; inset: 0 0 auto 0;
+    height: var(--strip-w);
+    background: var(--tile-hue, var(--border-loud));
+  }
+  .tile:hover {
+    border-color: var(--tile-hue, var(--border-loud));
+    box-shadow: var(--shadow-2);
+    transform: translateY(-1px);
+  }
+
+  /* ---------- loading ---------- */
+  /* Height-matched blocks, no shimmer sweep: a sweep is a gradient
+     (banned) and it also lies about progress. */
+  .skeleton {
+    background: var(--surface-sunken);
+    border-radius: var(--radius-sm);
+    animation: sk-breathe 1.6s ease-in-out infinite;
+  }
+  .skeleton-row { height: var(--row-h); }
+  @keyframes sk-breathe { 0%, 100% { opacity: 1 } 50% { opacity: 0.55 } }
+
+  /* The dashed rule is the one place dashes are allowed: it distinguishes
+     "nothing here" from "still loading". */
+  .empty-well {
+    margin: 16px; padding: 40px 24px; text-align: center;
+    border: 1px dashed var(--border-strong); border-radius: var(--radius);
+    background: var(--surface-subtle);
+  }
+
+  /* ---------- live arrival ---------- */
+  /* Tint only. No slide, no height animation: rows must never move under
+     a cursor that is about to click one. */
+  @keyframes land {
+    from { background: var(--accent-wash);
+           box-shadow: inset var(--strip-w) 0 0 0 var(--accent); }
+    to   { background: transparent;
+           box-shadow: inset var(--strip-w) 0 0 0 transparent; }
+  }
+  .row-new { animation: land var(--dur-slow) var(--ease-out); }
+
+  @keyframes breathe { 0%, 100% { opacity: 1 } 50% { opacity: 0.5 } }
+  .dot-live { animation: breathe 2.4s ease-in-out infinite; }
+
+  .link-accent { color: var(--accent); text-decoration: none; }
+  .link-accent:hover { text-decoration: underline; text-underline-offset: 2px; }
+}
+
+/* --- scrollbars: present, quiet --- */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border: 3px solid var(--surface);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--border-loud); }
+
+/* --- Leaflet: de-saturated so alert colour is the only hue on the map --- */
+.leaflet-container {
+  background: var(--surface-sunken) !important;
+  font-family: var(--font-sans) !important;
+}
+.leaflet-tile-pane { filter: grayscale(1) contrast(0.92) brightness(1.06); }
+.leaflet-control-attribution {
+  background: var(--scrim) !important;
+  font-size: 10px !important;
+  color: var(--ink-subtle) !important;
+}
+.leaflet-bar a { border-radius: 0 !important; color: var(--ink-body) !important; }
+
+/* --- motion: granular, not blanket. Reduced motion should remove the
+       movement, not the meaning — the arrival tint is information. --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+  .tile:hover { transform: none; }
+  .row-new { animation: none; background: var(--accent-wash); }
+  .dot-live { animation: none; opacity: 0.7; }
+  .skeleton { animation: none; opacity: 0.8; }
+}
+
+/* The console shell paints the canvas; page content must not paint over
+   it, or panels lose the ground that makes them read as objects. */
+main { background: var(--canvas); }

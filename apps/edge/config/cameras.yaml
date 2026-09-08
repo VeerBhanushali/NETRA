@@ -1,0 +1,55 @@
+version: 1
+cameras:
+  - id: cam-001
+    code: PN-CAM-001
+    name: "Shivajinagar Junction"
+    source: "rtsp://127.0.0.1:8554/cam001"
+    target_fps: 12
+    speed_limit_kmph: 50
+    lat: 18.5308
+    lon: 73.8470
+
+  - id: cam-002
+    code: PN-CAM-002
+    name: "Deccan Gymkhana Chowk"
+    source: "rtsp://127.0.0.1:8554/cam002"
+    target_fps: 12
+    speed_limit_kmph: 50
+    lat: 18.5165
+    lon: 73.8410
+
+  - id: cam-003
+    code: PN-CAM-003
+    name: "Swargate Bus Stand"
+    source: "rtsp://127.0.0.1:8554/cam003"
+    target_fps: 12
+    speed_limit_kmph: 40
+    lat: 18.5013
+    lon: 73.8586
+
+  - id: cam-004
+    code: PN-CAM-004
+    name: "Pune Railway Station Gate"
+    source: "rtsp://127.0.0.1:8554/cam004"
+    target_fps: 12
+    speed_limit_kmph: 40
+    lat: 18.5286
+    lon: 73.8743
+
+  - id: cam-005
+    code: PN-CAM-005
+    name: "Council Hall Perimeter"
+    source: "rtsp://127.0.0.1:8554/cam005"
+    target_fps: 12
+    speed_limit_kmph: 30
+    lat: 18.5305
+    lon: 73.8752
+
+  - id: cam-006
+    code: PN-CAM-006
+    name: "Yerawada Bridge North"
+    source: "rtsp://127.0.0.1:8554/cam006"
+    target_fps: 12
+    speed_limit_kmph: 60
+    lat: 18.5510
+    lon: 73.8800

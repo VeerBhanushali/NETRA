@@ -1,0 +1,48 @@
+{
+  "_comment": [
+    "THREE channels, each with one job.",
+    "",
+    "  cam-01  ANPR    reads number plates from Indian traffic footage",
+    "  cam-02  THREAT  watches people and the objects near their hands",
+    "  live    ALL     the operator's own camera, started from /live —",
+    "                  face + plate + threat on the same frames",
+    "",
+    "A channel does one job because the two fixed modes need different",
+    "class sets, different framing and different evidence rules. The live",
+    "channel runs all three precisely because it is pointed by a human",
+    "who knows what they are pointing it at.",
+    "",
+    "Sized to what this machine runs well: 7 cameras @0.70 CPU budget",
+    "pinned this laptop at 100%. The threat channel is cheaper than an",
+    "ANPR one - it never runs OCR, which is the expensive part."
+  ],
+  "region": "IN",
+  "loop": true,
+  "infer_interval_s": 0.15,
+  "cameras": [
+    {
+      "id": "cam-01",
+      "name": "Sector 17 Plaza North",
+      "mode": "anpr",
+      "sources": [
+        "datasets/demo_clips/in_vip_720.mp4",
+        "datasets/demo_clips/in_vid4_720.mp4",
+        "datasets/demo_clips/in_test1.mp4"
+      ],
+      "note": "Kerala, Maharashtra and Delhi plates, close range - the most legible footage",
+      "display_fps": 6,
+      "anpr_weight": 6
+    },
+    {
+      "id": "cam-02",
+      "name": "Sector 17 Market Concourse",
+      "mode": "threat",
+      "sources": [
+        "datasets/demo_clips/people_720.mp4"
+      ],
+      "note": "Pedestrian concourse. Person tracks are continuous; threat objects only fire when one is actually in frame, which is the honest behaviour.",
+      "display_fps": 6,
+      "anpr_weight": 3
+    }
+  ]
+}

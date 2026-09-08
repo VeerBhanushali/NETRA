@@ -1,0 +1,62 @@
+# --- dependencies and build output ---
+node_modules/
+.next/
+out/
+dist/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# --- secrets ---
+.env
+.env.local
+*.key
+*.pem
+
+# --- runtime data -------------------------------------------------------
+#
+# data/ holds the SQLite database, plate crops cut from real traffic
+# footage, enrolled face templates and the live camera frames. Those are
+# other people's registration numbers and other people's faces. A
+# surveillance project that publishes its own evidence directory has
+# missed the point of its own privacy design.
+#
+# Run `python scripts/seed_demo.py --reset` after cloning to build a fresh
+# database with synthetic data.
+data/
+logs/
+*.db
+*.db-wal
+*.db-shm
+
+# --- model weights ------------------------------------------------------
+# Fetched by `python scripts/fetch_assets.py`, not stored in git.
+models/onnx/*.pt
+models/onnx/*.onnx
+yolov8n.pt
+*.pt
+
+# --- large footage ------------------------------------------------------
+# The clips cameras.json actually uses are committed. These are the
+# uncompressed originals and unused extras, kept out to stop the repo
+# turning into a video host.
+datasets/demo_clips/anpr_sample.mp4
+datasets/demo_clips/in_test2.mp4
+datasets/demo_clips/in_vid4.mp4
+datasets/demo_clips/in_vid4_out.mp4
+datasets/demo_clips/in_vid4_out_720.mp4
+datasets/demo_clips/in_vip.mp4
+datasets/demo_clips/vehicles.mp4
+datasets/accidents/
+
+# --- superseded work ----------------------------------------------------
+# The earlier build this project replaced. Kept locally for reference.
+_legacy/
+
+# --- editor / OS ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

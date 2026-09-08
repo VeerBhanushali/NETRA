@@ -1,0 +1,11 @@
+**/node_modules
+**/.next
+**/__pycache__
+**/*.pyc
+_legacy
+data
+logs
+docs/_raw
+.git
+datasets
+models/onnx

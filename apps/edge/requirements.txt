@@ -1,0 +1,16 @@
+# --- always required (the simulator and voting engine need nothing else) ---
+# stdlib only.
+
+# --- real inference: install when you have model weights ---
+# ultralytics>=8.3          # YOLOv8 detection + ByteTrack
+# opencv-python>=4.10       # video IO, crops, blur metric
+# paddlepaddle>=2.6         # CPU build is fine for plate crops
+# paddleocr>=2.8
+
+# --- AMD RX 6500M / Windows: DirectML, NOT CUDA ---
+# Install exactly ONE of these. Installing both breaks DirectML silently.
+# onnxruntime-directml>=1.20     # uses the AMD GPU
+# onnxruntime>=1.20              # CPU only
+
+# --- dev ---
+pytest>=8.0
