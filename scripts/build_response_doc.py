@@ -23,8 +23,11 @@ from docx.oxml.ns import qn
 from docx.shared import Pt, RGBColor, Inches
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "docs" / "13-requirements-response.md"
-OUT = ROOT / "docs" / "NETRA-Requirements-Response.docx"
+# Overridable so the same converter can render any of the docs/ files:
+#     python scripts/build_response_doc.py docs/14-model-inventory.md out.docx
+SRC = ROOT / (sys.argv[1] if len(sys.argv) > 1 else "docs/13-requirements-response.md")
+OUT = ROOT / (sys.argv[2] if len(sys.argv) > 2
+              else "docs/NETRA-Requirements-Response.docx")
 
 INK = RGBColor(0x1A, 0x1A, 0x1E)
 SUBTLE = RGBColor(0x5E, 0x66, 0x72)
