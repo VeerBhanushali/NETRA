@@ -19,7 +19,11 @@ CCTV VIDEO → VEHICLE DETECTION → TRACK → ANPR → STORE → SEARCH
            → INCIDENT → OPERATOR CONFIRM → LIVE DASHBOARD
 ```
 
-Two cameras decode real Indian traffic footage continuously, YOLOv8n detects
+Three channels run side by side: an **ANPR channel** on Indian traffic footage, a
+**threat-watch channel** on pedestrian footage, and the **operator's own camera**
+running faces, plates, objects and threat evidence on the same frames.
+
+The ANPR channel decodes real Indian traffic footage continuously, YOLOv8n detects
 vehicles, ByteTrack tracks them, a YOLO11n plate detector crops the plate,
 EasyOCR reads it, and a temporal-voting layer decides whether the read is good
 enough to publish. Confirmed plates land in the database and appear on the live
@@ -47,7 +51,7 @@ contract, not a missing capability — see §4.
 | 9 | Face / POI search | 3 | **Built** | InsightFace `buffalo_s`; `POST /api/v1/persons`, `/faces/scan` |
 | 10 | Person Re-ID (cross-camera) | 3 | **Partial** | Same gallery matches on any camera; no appearance-based person Re-ID |
 | 11 | Incident engine + schema | 1 | **Built** | `alerts` (15 types, 8 states), `anomaly_events` |
-| 12 | Context-aware threats | 3 | **Built (evidence layer)** | `edge/snapshot.py` — object + person + interaction + temporal, no verdict |
+| 12 | Context-aware threats | 3 | **Built (evidence layer)** | `edge/snapshot.py` — all 80 COCO classes reported; object + person + person-object interaction + person-person contact + temporal axis; scored, never asserted |
 | 13 | Medical / emergency events | 2/3 | **Not built** | Person-down, fire/smoke need trained models — see §5 |
 | 14 | Incident fusion | 2 | **Partial** | Republish cooldown + dedupe keys prevent duplicates; no cross-camera merge |
 | 15 | Severity / prioritisation | 2 | **Built** | `alerts.severity` critical→info, set per rule |
@@ -65,6 +69,13 @@ contract, not a missing capability — see §4.
 
 **Score: 15 built, 5 partial, 6 not built.** Every Phase-1 item in the document
 is complete except authentication.
+
+Two capabilities were added that the inventory does not list:
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Owner / RC / PUC / insurance lookup | **Built (adapter)** | `GET /api/v1/registry/{plate}` behind a mandatory audited reason. Provider-pluggable; see §5.4 |
+| Phone and operator camera as a channel | **Built** | `POST /api/v1/devices/frame`; USB, Tailscale or tunnel; see §7 |
 
 ---
 
@@ -137,7 +148,40 @@ Our detector is YOLOv8n on COCO. COCO contains `knife`, `scissors` and
 reports those three classes and says so in its own response payload. Claiming gun
 detection would require a weapons dataset and training run we have not done.
 
-### 5.3 Vehicle Re-ID and person Re-ID by appearance
+### 5.3 Fighting, and other actions
+
+Person-to-person violence is an *action*, not an object. Two people grappling and
+two people embracing produce identical bounding boxes. We report the observable —
+*"N pair(s) of people in close contact — could be a struggle, could be a
+conversation"* — score it, and route the frame to an operator. We do not label it
+a fight. Doing so needs a trained temporal action model on a violence dataset
+(RWF-2000 or similar), which is the same missing piece as §5.1.
+
+### 5.4 Owner data, and why the lookup is an adapter
+
+The authoritative source is **VAHAN (MoRTH/NIC)**. Access is granted to police and
+transport departments under an MoU with NIC-issued credentials — not obtainable by
+a student team. Three consequences:
+
+* The lookup ships as a **provider adapter**. `mock` returns synthetic records that
+  are labelled as demo data in the API response, in `/config/features` and in the UI.
+* `http` consumes a **licensed RC-verification API** — several vendors resell
+  VAHAN-derived data under contract. Five environment variables and it returns real
+  owner, RC, PUC, insurance and fitness data. `scripts/check_rc_api.py` validates a
+  key before the console touches it.
+* In deployment, the same adapter points at VAHAN under the **department's own MoU**.
+
+We do **not** scrape parivahan.gov.in. It is CAPTCHA- and OTP-gated precisely to
+prevent bulk lookup; defeating that is a terms violation and is exactly the abuse
+this system's privacy design exists to prevent.
+
+Owner records are never written to a table. They are held in memory for 300
+seconds and discarded. Names are masked to initial-plus-surname, addresses to
+locality and PIN, chassis and engine numbers to the last four digits. Every lookup
+requires a typed reason of at least eight characters and the audit row is written
+**before** the query runs, so a failed attempt is still on the record.
+
+### 5.5 Vehicle Re-ID and person Re-ID by appearance
 
 Both need an appearance-embedding model trained on vehicle/person re-identification
 data plus a camera-topology gating layer. We chose ByteTrack precisely *because*
@@ -175,10 +219,16 @@ engineer would accept." Items 4–7 are scale and polish. Item 8 is research.
 
 ## 7. On the phone-as-camera addition
 
-We do not have live CCTV hardware, so a phone runs the camera role over a USB
-cable (`adb reverse`, no network exposure) or a private Tailscale link. It now
-performs **face matching, plate reading and threat evidence** on the frames it
-sends.
+We do not have live CCTV hardware, so a phone or the operator's own webcam runs
+the camera role. Browsers only open a camera in a secure context, so connectivity
+is `adb reverse` over a **USB cable** (nothing exposed to any network — the phone
+is wired to the machine exactly like a CCTV camera on a cable), a private
+**Tailscale** link, or a tunnel. It performs **face matching, plate reading,
+all-object detection and threat evidence** on the frames it sends, and the
+operator camera has a full-screen view showing per-face detail: face size,
+image quality, detector score, and the top-3 closest enrolled identities with
+their scores — because a 66 % match means something different when the runner-up
+is 21 % than when it is 64 %.
 
 One design decision matters here and it follows directly from §8 of the
 requirements. A fixed camera sees a vehicle across many frames and settles the
@@ -212,6 +262,15 @@ It never asserts a threat. `knife = threat` is not encoded anywhere.
   published `KL0ZBA5252` for a true `KL07BA5252`.
 - **DirectML acceleration on AMD** where CUDA is unavailable: YOLOv8n 59.4 → 18.9 ms
   (3.2×), plate detector 54.9 → 11.1 ms (5.0×).
+- **A confidence ceiling for single-frame cameras.** A handheld camera sees a
+  vehicle once and cannot satisfy the evidence rule, so its reads are capped at
+  0.80 and written to the review queue, never to confirmed sightings. Verified:
+  the same plate reads 0.928 as fact from a fixed camera and 0.800 as a candidate
+  from a phone.
+- **A rejection rule learned from a real failure.** OCR returned `631` at 0.9999
+  confidence off a partly occluded car during testing. High confidence on a
+  fragment is confidently wrong, not nearly right, so reads below the minimum
+  plate length are discarded and reads failing regional grammar are damped.
 
 ---
 
