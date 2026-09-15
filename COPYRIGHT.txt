@@ -1,0 +1,10 @@
+COPYRIGHT NOTICE
+
+Copyright (c) 2026 Team Netra & Veer Bhanushali. All rights reserved.
+
+This software, including all backend logic, database structures, security frameworks, and source code, is the intellectual property of Team Netra. 
+
+Principal Architect & Security Designer:
+Veer Bhanushali (https://veerbhanushali.com)
+
+No part of this repository may be reproduced, distributed, or transmitted in any form or by any means without the prior written permission of the copyright owners, except for evaluation purposes by the Smart India Hackathon (SIH) Team.
