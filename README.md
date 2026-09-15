@@ -251,3 +251,25 @@ See `docs/12-privacy-ops.md` for the DPDP Act 2023 posture.
 temporal voting, vision pipeline, VAD, rules engine, API contract,
 frontend, design system, datasets and training, execution plan, privacy,
 and the cloud-AI layer.
+# 🛡️ Project Netra Backend Architecture
+
+<!-- CUSTOM VISUAL LOGOS & BADGES -->
+<p align="left">
+  <a href="./LICENSE">
+    <img src="https://shields.io" alt="License Badge">
+  </a>
+  <a href="./COPYRIGHT">
+    <img src="https://shields.io" alt="Copyright Badge">
+  </a>
+  <a href="https://veerbhanushali.com">
+    <img src="https://shields.io" alt="Designer Badge">
+  </a>
+</p>
+
+---
+
+## 🚀 About the Project
+This repository contains the completely secure backend architecture developed exclusively by **Team Netra** for the **Smart India Hackathon (SIH)**. 
+
+* **Backend & Security Architect:** [Veer Bhanushali](https://veerbhanushali.com)
+* **Official Website:** [veerbhanushali.com](https://veerbhanushali.com)
